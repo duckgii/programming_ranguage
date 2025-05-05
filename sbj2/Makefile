@@ -1,26 +1,41 @@
-CC = c++
-NAME = harlFilter
-CFLAGS = -std=c++98 -Wall -Wextra -Werror
-SRCS = lex.l \
-        hw3.y
-SRCS_OBJS = lex.yy.c \
-            y.tab.c
+# --- 변수 선언 ---
+NAME      = yacc
+CC        = cc
 
-all : $(NAME)
+SRC_LEX   = lex.l
+SRC_YACC  = hw3.y
 
-clean :
-    rm -f $(SRCS_OBJS)
+# --- 생성 산출물 정의 ---
+GEN_C     = lex.yy.c y.tab.c
+GEN_HDR   = y.tab.h
+OBJS      = lex.yy.o y.tab.o
 
-fclean : clean
-    rm -f $(NAME)
+# --- 기본 타겟 ---
+all: $(NAME)
 
-re:
-    make fclean
-    make all
+# --- 링크 단계: 오브젝트 → 실행파일 ---
+$(NAME): $(OBJS)
+	$(CC) -o $@ $(OBJS)
 
-$(NAME) : $(SRCS)
-	lex lex.l 
-	yacc –d hw3.y
-	cc y.tab.c lex.yy.c –o yacc
+# --- Bison으로 파서 소스·헤더 생성 ---
+y.tab.c y.tab.h: $(SRC_YACC)
+	yacc -d -v $(SRC_YACC)
 
-.PHONY : all clean fclean re
+# --- Lex로 렉서 소스 생성 ---
+lex.yy.c: $(SRC_LEX) y.tab.h
+	lex $(SRC_LEX)
+
+# --- C 소스 → 오브젝트 컴파일 ---
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# --- 정리 ---
+clean:
+	rm -f $(GEN_C) $(OBJS) $(GEN_HDR)
+
+fclean: clean
+	rm -f $(NAME)
+
+re: fclean all
+
+.PHONY: all clean fclean re

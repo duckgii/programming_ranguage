@@ -12,8 +12,11 @@ int ary[9] = {0,0,0,0,0,0,0,0,0};
 #define ARRAY		5
 #define SELECTION	6
 #define LOOP		7
-#define RETURN		8
+#define RET			8
 
+int yylex(void);
+struct YYLTYPE;              
+void yyerror(const char *msg); 
 %}
 
 %token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF
@@ -29,9 +32,10 @@ int ary[9] = {0,0,0,0,0,0,0,0,0};
 %token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
 %start translation_unit
 
+%locations
+%%
 /* for function count */
 /* function declaration */
-%%
 translation_unit
 	: external_declaration
 	| translation_unit external_declaration
@@ -54,11 +58,18 @@ declaration_specifiers
 	| type_qualifier
 	| type_qualifier declaration_specifiers
 	;
+//선언과 정의가 섞여있는부분 에러 발생
 
 compound_statement
-	: '{' statement_list '}'
-	| '{' declaration_list '}'
-	| '{' declaration_list statement_list '}'
+	: '{' compound_list '}'
+	;
+
+compound_list
+	: declaration
+	| statement
+	| compound_list declaration
+	| compound_list statement
+	;
 
 /* function call */
 postfix_expression
@@ -209,11 +220,6 @@ statement
 	| jump_statement
 	;
 
-statement_list
-	: statement
-	| statement_list statement
-	;
-
 /* for counting pointer */
 
 declarator
@@ -253,8 +259,8 @@ jump_statement
 	: GOTO IDENTIFIER ';'
 	| CONTINUE ';'
 	| BREAK ';'
-	| RETURN ';' {ary[RETURN]++;}
-	| RETURN expression ';' {ary[RETURN]++;}
+	| RETURN ';' {ary[RET]++;}
+	| RETURN expression ';' {ary[RET]++;}
 
 /* 추가 필요 문법 */
 declaration
@@ -286,11 +292,6 @@ initializer_list
 type_qualifier
 	: CONST
 	| VOLATILE
-	;
-
-declaration_list
-	: declaration
-	| declaration_list declaration
 	;
 
 primary_expression
@@ -380,6 +381,16 @@ direct_abstract_declarator
 
 %%
 
+void yyerror(const char *msg)
+{
+    /* 전역 YYLTYPE yylloc 에 마지막 토큰 위치가 들어 있음 */
+    fprintf(stderr,
+            "Error at %d:%d: %s\n",
+            yylloc.first_line,
+            yylloc.first_column,
+            msg);
+}
+
 int main(void)
 {
 	yyparse();
@@ -395,7 +406,3 @@ int main(void)
 	return 0;
 }
 
-void yyerror(const char *str)
-{
-	fprintf(stderr, "error: %s\n", str);
-}

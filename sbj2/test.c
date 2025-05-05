@@ -1,10 +1,10 @@
-#include <stdio.h>
 
 char W[3] = "tf";
 char *answer;
+
 int main()
 {
-    int n, i;
+	int n, i;
     i=0;
     int arr[7];
     int sum = 0;
