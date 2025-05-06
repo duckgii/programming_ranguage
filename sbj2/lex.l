@@ -73,6 +73,11 @@ int is_struct_tag(const char *s) {
     return 0;
 }
 
+void start_typedef(void)
+{
+	typedef_start_flag = 1; 
+	curly_brace_flag = -1; 
+}
 %}
 
 
@@ -85,7 +90,7 @@ int is_struct_tag(const char *s) {
     sscanf(yytext, "#%*s %127s", namebuf);
     add_define(namebuf);
 }
-"typedef"		{count(); typedef_start_flag = 1; curly_brace_flag = -1; return(TYPEDEF);}
+"typedef"		{ count(); start_typedef(); return(TYPEDEF);}
 "auto"			{ count(); return(AUTO); }
 "break"			{ count(); return(BREAK); }
 "case"			{ count(); return(CASE); }
@@ -96,7 +101,10 @@ int is_struct_tag(const char *s) {
 "do"			{ count(); return(DO); }
 "double"		{ count(); return(DOUBLE); }
 "else"			{ count(); return(ELSE); }
-"enum"			{ count(); return(ENUM); }
+"enum"			{ count(); 
+	if (typedef_start_flag)
+		typedef_start_flag = 2;
+	return(ENUM); }
 "extern"		{ count(); return(EXTERN); }
 "float"			{ count(); return(FLOAT); }
 "for"			{ count(); return(FOR); }
@@ -110,9 +118,15 @@ int is_struct_tag(const char *s) {
 "signed"		{ count(); return(SIGNED); }
 "sizeof"		{ count(); return(SIZEOF); }
 "static"		{ count(); return(STATIC); }
-"struct"		{ count(); return(STRUCT); }
+"struct"		{ count(); 
+	if (typedef_start_flag)
+		typedef_start_flag = 2;
+	return(STRUCT); }
 "switch"		{ count(); return(SWITCH); }
-"union"			{ count(); return(UNION); }
+"union"			{ count(); 
+	if (typedef_start_flag)
+		typedef_start_flag = 2;
+	return(UNION); }
 "unsigned"		{ count(); return(UNSIGNED); }
 "void"			{ count(); return(VOID); }
 "volatile"		{ count(); return(VOLATILE); }
@@ -155,16 +169,15 @@ L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
 "!="			{ count(); return(NE_OP); }
 ";"			{ count(); return(';'); }
 ("{"|"<%")		{ count(); 
-	if (typedef_start_flag == 1)
+	if (typedef_start_flag == 2)
 	{
 		if (curly_brace_flag == -1)
 			curly_brace_flag = 0;
 		curly_brace_flag++;
 	}
-	return('{'); 
-		}
+	return('{'); }
 ("}"|"%>")		{ count(); 
-	if (typedef_start_flag)
+	if (typedef_start_flag == 2)
 		curly_brace_flag--;
 	return('}'); }
 ","			{ count(); return(','); }
@@ -251,10 +264,21 @@ void count()
 
 int check_type()
 {
-	if (typedef_start_flag && curly_brace_flag == 0)
+	if (typedef_start_flag)
 	{
-		typedef_start_flag = 0;
-		add_typedef(yytext);
+		if (typedef_start_flag == 2 && curly_brace_flag == 0)
+		{
+			typedef_start_flag = 0;
+			add_typedef(yytext);
+		}
+		else if (typedef_start_flag == 1)
+		{
+			typedef_start_flag = 0;
+			curly_brace_flag = 0;
+			add_typedef(yytext);
+		}
+		else if (typedef_start_flag == 2 && curly_brace_flag == -1)
+			curly_brace_flag = 0;
 	}
 	if (is_typedef(yytext)) {
         return TYPE_NAME;   /* typedef 이름 */
