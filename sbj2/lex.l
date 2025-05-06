@@ -4,22 +4,88 @@ H			[a-fA-F0-9]
 E			[Ee][+-]?{D}+
 FS			(f|F|l|L)
 IS			(u|U|l|L)*
+ID    		[A-Za-z_][A-Za-z0-9_]*
 
 %{
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
 #include "y.tab.h"
 
 void count();
 void comment();
 void lineComment();
 int check_type();
+int is_typedef_name(const char *s);
+int typedef_start_flag;
+int curly_brace_flag;
+/* 심볼 테이블 최대 개수 */
+#define MAX_SYMBOLS 1024
+
+/* typedef 이름 테이블 */
+static char *typedef_names[MAX_SYMBOLS];
+static int   typedef_count = 0;
+/* #define 이름 테이블 */
+static char *define_names[MAX_SYMBOLS];
+static int   define_count = 0;
+/* struct 태그 이름 테이블 */
+static char *struct_names[MAX_SYMBOLS];
+static int   struct_count = 0;
+
+/* typedef 이름 추가 */
+void add_typedef(const char *s) {
+    if (typedef_count < MAX_SYMBOLS)
+        typedef_names[typedef_count++] = strdup(s);
+}
+
+/* typedef 여부 확인 */
+int is_typedef(const char *s) {
+    for (int i = 0; i < typedef_count; i++)
+        if (strcmp(s, typedef_names[i]) == 0)
+            return 1;
+    return 0;
+}
+
+/* #define 이름 추가 */
+void add_define(const char *s) {
+    if (define_count < MAX_SYMBOLS)
+        define_names[define_count++] = strdup(s);
+}
+
+/* #define 여부 확인 */
+int is_define(const char *s) {
+    for (int i = 0; i < define_count; i++)
+        if (strcmp(s, define_names[i]) == 0)
+            return 1;
+    return 0;
+}
+
+void add_struct_tag(const char *s) {
+    if (struct_count < MAX_SYMBOLS)
+        struct_names[struct_count++] = strdup(s);
+}
+
+int is_struct_tag(const char *s) {
+    for (int i = 0; i < struct_count; i++)
+        if (strcmp(s, struct_names[i]) == 0)
+            return 1;
+    return 0;
+}
+
 %}
+
 
 %%
 "/*"			{ comment(); }
 "//"			{ lineComment(); }
 ^"#include".*\n    { ; }
-^"#define"[ \t]+[A-Za-z_][A-Za-z0-9_]*[ \t]+[0-9]+[ \t]*\n     { ; } // 에러
+^"#define"[ \t]+{ID}.*\n {
+	char namebuf[128];
+    sscanf(yytext, "#%*s %127s", namebuf);
+    add_define(namebuf);
+}
+"typedef"		{count(); typedef_start_flag = 1; curly_brace_flag = -1; return(TYPEDEF);}
 "auto"			{ count(); return(AUTO); }
 "break"			{ count(); return(BREAK); }
 "case"			{ count(); return(CASE); }
@@ -46,7 +112,6 @@ int check_type();
 "static"		{ count(); return(STATIC); }
 "struct"		{ count(); return(STRUCT); }
 "switch"		{ count(); return(SWITCH); }
-"typedef"		{ count(); return(TYPEDEF); }
 "union"			{ count(); return(UNION); }
 "unsigned"		{ count(); return(UNSIGNED); }
 "void"			{ count(); return(VOID); }
@@ -89,8 +154,19 @@ L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
 "=="			{ count(); return(EQ_OP); }
 "!="			{ count(); return(NE_OP); }
 ";"			{ count(); return(';'); }
-("{"|"<%")		{ count(); return('{'); }
-("}"|"%>")		{ count(); return('}'); }
+("{"|"<%")		{ count(); 
+	if (typedef_start_flag == 1)
+	{
+		if (curly_brace_flag == -1)
+			curly_brace_flag = 0;
+		curly_brace_flag++;
+	}
+	return('{'); 
+		}
+("}"|"%>")		{ count(); 
+	if (typedef_start_flag)
+		curly_brace_flag--;
+	return('}'); }
 ","			{ count(); return(','); }
 ":"			{ count(); return(':'); }
 "="			{ count(); return('='); }
@@ -175,18 +251,21 @@ void count()
 
 int check_type()
 {
-/*
-* pseudo code --- this is what it should check
-*
-*	if (yytext == type_name)
-*		return(TYPE_NAME);
-*
-*	return(IDENTIFIER);
-*/
-
-/*
-*	it actually will only return IDENTIFIER
-*/
-
-	return(IDENTIFIER);
+	if (typedef_start_flag && curly_brace_flag == 0)
+	{
+		typedef_start_flag = 0;
+		add_typedef(yytext);
+	}
+	if (is_typedef(yytext)) {
+        return TYPE_NAME;   /* typedef 이름 */
+    }
+    else if (is_define(yytext)) {
+        return CONSTANT;   /* #define 상수 이름 */
+    }
+    else if (is_struct_tag(yytext)) {
+        return TYPE_NAME;   /* #struct 상수 이름 */
+    }
+    else {
+        return IDENTIFIER; /* 일반 식별자 */
+    }
 }

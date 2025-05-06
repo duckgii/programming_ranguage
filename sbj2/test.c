@@ -1,15 +1,17 @@
 #include <stdio.h>
 
-#define AA 3
+#define a 3123
+
+struct t_list;
+
+struct k_list {
+	int aa;
+};
 
 typedef struct t_list {
-	int	a, b;
+	int aa;
 } s_list;
 
-/*
-16, 8진수
-구조체 자료형 함수 파라미터로 들어감
-*/
 
 char W[3] = "tf";
 char *answer;
@@ -18,8 +20,11 @@ int main()
 {
 	int n, i;
     int arr[7];
-    int sum = 0;
-    i=0;
+    int sum = a;
+	struct k_list	kk;
+    i=075;
+    i=0X7A5F;
+	s_list	sdflkj;
     scanf("%d", &n);
     for (i = 0; i < n; i++)
     {
