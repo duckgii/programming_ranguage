@@ -11,11 +11,13 @@ IS			(u|U|l|L)*
 
 void count();
 void comment();
+void lineComment();
 int check_type();
 %}
 
 %%
 "/*"			{ comment(); }
+"//"			{ lineComment(); }
 ^"#include".*\n    { ; }
 ^"#define"[ \t]+[A-Za-z_][A-Za-z0-9_]*[ \t]+[0-9]+[ \t]*\n     { ; } // 에러
 "auto"			{ count(); return(AUTO); }
@@ -135,6 +137,18 @@ loop:
 		unput(c1);
 		goto loop;
 	}
+
+	if (c != 0)
+		putchar(c1);
+}
+
+void lineComment()
+{
+	char c, c1;
+
+loop:
+	while ((c = input()) != '\n' && c != 0)
+		putchar(c);
 
 	if (c != 0)
 		putchar(c1);

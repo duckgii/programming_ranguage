@@ -15,7 +15,8 @@ int ary[9] = {0,0,0,0,0,0,0,0,0};
 #define RET			8
 
 int yylex(void);
-struct YYLTYPE;              
+struct YYLTYPE;
+int temp = 1; // int a, b; 이런 경우 해결을 위한 count 변수     
 void yyerror(const char *msg); 
 %}
 
@@ -53,7 +54,9 @@ external_declaration
 	;
 
 declaration_specifiers
-	: type_specifier
+	: storage_class_specifier
+	| storage_class_specifier declaration_specifiers
+	| type_specifier
 	| type_specifier declaration_specifiers
 	| type_qualifier
 	| type_qualifier declaration_specifiers
@@ -193,15 +196,17 @@ assignment_operator
 
 type_specifier
 	: VOID
-	| CHAR {ary[CHARACTER]++;}
+	| CHAR {ary[CHARACTER]+= temp; temp = 1;}
 	| SHORT
-	| INT {ary[INTEGER]++;}
+	| INT {ary[INTEGER] += temp; temp = 1;}
 	| LONG 
 	| FLOAT
 	| DOUBLE
 	| SIGNED
 	| UNSIGNED
 	| TYPE_NAME
+	| struct_or_union_specifier
+	| enum_specifier
 	;
 
 /* iteration count */
@@ -270,7 +275,7 @@ declaration
 
 init_declarator_list
 	: init_declarator
-	| init_declarator_list ',' init_declarator
+	| init_declarator_list ',' init_declarator {temp++;}
 	;
 
 init_declarator
@@ -377,6 +382,63 @@ direct_abstract_declarator
 	| '(' parameter_type_list ')'
 	| direct_abstract_declarator '(' ')'
 	| direct_abstract_declarator '(' parameter_type_list ')'
+	;
+
+// for typedef
+storage_class_specifier
+	: TYPEDEF
+	| EXTERN
+	| STATIC
+	| AUTO
+	| REGISTER
+	;
+
+struct_or_union
+	: STRUCT
+	| UNION
+	;
+
+struct_or_union_specifier
+	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'
+	| struct_or_union '{' struct_declaration_list '}'
+	| struct_or_union IDENTIFIER
+	;
+
+struct_declaration_list
+	: struct_declaration
+	| struct_declaration_list struct_declaration
+	;
+
+struct_declaration
+	: specifier_qualifier_list struct_declarator_list ';'
+	;
+
+struct_declarator_list
+	: struct_declarator
+	| struct_declarator_list ',' struct_declarator
+	;
+
+struct_declarator
+	: declarator
+	| ':' constant_expression
+	| declarator ':' constant_expression
+	;
+		
+//for enum
+enum_specifier
+	: ENUM '{' enumerator_list '}'
+	| ENUM IDENTIFIER '{' enumerator_list '}'
+	| ENUM IDENTIFIER
+	;
+
+enumerator_list
+	: enumerator
+	| enumerator_list ',' enumerator
+	;
+
+enumerator
+	: IDENTIFIER
+	| IDENTIFIER '=' constant_expression
 	;
 
 %%

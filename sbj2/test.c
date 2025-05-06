@@ -2,6 +2,15 @@
 
 #define AA 3
 
+typedef struct t_list {
+	int	a, b;
+} s_list;
+
+/*
+16, 8진수
+구조체 자료형 함수 파라미터로 들어감
+*/
+
 char W[3] = "tf";
 char *answer;
 
@@ -30,5 +39,5 @@ int main()
         answer = (W + 1);
     }
     printf("%c\n", answer[0]);
-    return 1;
+    return (1);
 }
