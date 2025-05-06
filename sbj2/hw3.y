@@ -49,7 +49,7 @@ function_definition
 	;
 
 external_declaration
-	: function_definition {ary[FUNCTION]++;}
+	: function_definition
 	| declaration
 	;
 
@@ -243,21 +243,21 @@ pointer
 
 direct_declarator
 	: IDENTIFIER
-	| '(' declarator ')'
+	| '(' declarator ')' 
 	| direct_declarator '[' constant_expression ']' {ary[ARRAY]++;}
 	| direct_declarator '[' ']' {ary[ARRAY]++;}
 	| direct_declarator '(' parameter_type_list ')' {ary[FUNCTION]++;}
-	| direct_declarator '(' identifier_list ')'
-	| direct_declarator '(' ')'
+	| direct_declarator '(' identifier_list ')' {ary[FUNCTION]++;}
+	| direct_declarator '(' ')' {ary[FUNCTION]++;}
 	;
 
 /* for counting selection */
 selection_statement
 	: IF '(' expression ')' statement {ary[SELECTION]++;}
-	/*| IF '(' expression ')' statement ELSE statement {ary[SELECTION]++;}*/
 	| ELSE statement
 	| SWITCH '(' expression ')' statement {ary[SELECTION]++;}
 	;
+/*| IF '(' expression ')' statement ELSE statement {ary[SELECTION]++;}*/
 
 /* for counting return */
 jump_statement
