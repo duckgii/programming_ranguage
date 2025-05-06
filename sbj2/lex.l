@@ -100,6 +100,7 @@ void start_typedef(void)
 "default"		{ count(); return(DEFAULT); }
 "do"			{ count(); return(DO); }
 "double"		{ count(); return(DOUBLE); }
+"else if"			{ count(); return(ELSEIF); }
 "else"			{ count(); return(ELSE); }
 "enum"			{ count(); 
 	if (typedef_start_flag)

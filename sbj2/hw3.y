@@ -30,7 +30,7 @@ void yyerror(const char *msg);
 %token CHAR SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONST VOLATILE VOID
 %token STRUCT UNION ENUM ELLIPSIS
 
-%token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
+%token CASE DEFAULT IF ELSEIF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
 %start translation_unit
 
 %locations
@@ -254,6 +254,7 @@ direct_declarator
 /* for counting selection */
 selection_statement
 	: IF '(' expression ')' statement {ary[SELECTION]++;}
+	| ELSEIF '(' expression ')' statement
 	| ELSE statement
 	| SWITCH '(' expression ')' statement {ary[SELECTION]++;}
 	;

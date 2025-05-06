@@ -26,7 +26,7 @@ char *answer;
 int main()
 {
 	int n, i;
-    int arr[7];
+    int arr[7] = {0};
     int sum = a;
 	struct k_list	kk;
     i=075;
@@ -46,6 +46,10 @@ int main()
         sum += arr[i];
     }
     if (sum >= 10)
+    {
+        answer = W;
+    }
+    else if (sum >= 100)
     {
         answer = W;
     }
