@@ -16,7 +16,7 @@ int ary[9] = {0,0,0,0,0,0,0,0,0};
 
 int yylex(void);
 struct YYLTYPE;
-int temp = 1; // int a, b; 이런 경우 해결을 위한 count 변수     
+int idx; // int a, b; 이런 경우 해결을 위한 count 변수     
 void yyerror(const char *msg); 
 %}
 
@@ -196,9 +196,9 @@ assignment_operator
 
 type_specifier
 	: VOID
-	| CHAR {ary[CHARACTER]+= temp; temp = 1;}
+	| CHAR {idx = CHARACTER;}
 	| SHORT
-	| INT {ary[INTEGER] += temp; temp = 1;}
+	| INT {idx = INTEGER;}
 	| LONG 
 	| FLOAT
 	| DOUBLE
@@ -246,7 +246,7 @@ direct_declarator
 	| '(' declarator ')'
 	| direct_declarator '[' constant_expression ']' {ary[ARRAY]++;}
 	| direct_declarator '[' ']' {ary[ARRAY]++;}
-	| direct_declarator '(' parameter_type_list ')'
+	| direct_declarator '(' parameter_type_list ')' {ary[FUNCTION]++;}
 	| direct_declarator '(' identifier_list ')'
 	| direct_declarator '(' ')'
 	;
@@ -274,8 +274,8 @@ declaration
 	;
 
 init_declarator_list
-	: init_declarator
-	| init_declarator_list ',' init_declarator {temp++;}
+	: init_declarator {ary[idx]++;};
+	| init_declarator_list ',' init_declarator {ary[idx]++;}
 	;
 
 init_declarator

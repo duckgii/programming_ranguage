@@ -34,6 +34,8 @@ int main()
 	iii iiiii;
 	s_list	sdflkj;
     scanf("%d", &n);
+	int (*p)(int, int);
+
     for (i = 0; i < n; i++)
     {
         arr[i] = i;
@@ -54,3 +56,15 @@ int main()
     printf("%c\n", answer[0]);
     return (1);
 }
+
+/*
+function = 3 3 -> 4
+operator = 17 17
+int = 8 11 -> 유지 필요
+char = 2 2
+pointer = 1 2
+array = 2 2
+selection = 2 2
+loop = 2 2
+return = 1 1
+*/
