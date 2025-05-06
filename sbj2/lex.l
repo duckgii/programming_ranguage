@@ -16,7 +16,8 @@ int check_type();
 
 %%
 "/*"			{ comment(); }
-
+^"#include".*\n    { ; }
+^"#define"[ \t]+[A-Za-z_][A-Za-z0-9_]*[ \t]+[0-9]+[ \t]*\n     { ; } // 에러
 "auto"			{ count(); return(AUTO); }
 "break"			{ count(); return(BREAK); }
 "case"			{ count(); return(CASE); }

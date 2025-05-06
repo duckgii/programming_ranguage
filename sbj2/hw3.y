@@ -48,7 +48,7 @@ function_definition
 	;
 
 external_declaration
-	: function_definition 
+	: function_definition {ary[FUNCTION]++;}
 	| declaration
 	;
 
@@ -178,7 +178,7 @@ conditional_expression
 
 /* operation */
 assignment_operator
-	: '='
+	: '=' {ary[OPERATOR]++;}
 	| MUL_ASSIGN {ary[OPERATOR]++;}
 	| DIV_ASSIGN {ary[OPERATOR]++;}
 	| MOD_ASSIGN {ary[OPERATOR]++;}
@@ -275,7 +275,7 @@ init_declarator_list
 
 init_declarator
 	: declarator
-	| declarator '=' initializer
+	| declarator '=' initializer {ary[OPERATOR]++;}
 	;
 
 initializer

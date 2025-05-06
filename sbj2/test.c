@@ -1,3 +1,6 @@
+#include <stdio.h>
+
+#define AA 3
 
 char W[3] = "tf";
 char *answer;
@@ -5,9 +8,9 @@ char *answer;
 int main()
 {
 	int n, i;
-    i=0;
     int arr[7];
     int sum = 0;
+    i=0;
     scanf("%d", &n);
     for (i = 0; i < n; i++)
     {
@@ -15,6 +18,7 @@ int main()
     }
     for (i = 0; i < n; i++)
     {
+		
         sum += arr[i];
     }
     if (sum >= 10)
