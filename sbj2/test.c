@@ -25,15 +25,16 @@ char *answer;
 
 int main()
 {
-	int n, i;
+	int n, i; // 이부분만 수정되면 될듯
     int arr[7] = {0};
+	int arr[2][3];
     int sum = a;
-	struct k_list	kk;
-    i=075;
-    i=0X7A5F;
+	int* arr[9]; // 이걸 어케 처리해야할까...
+	// struct k_list	kk;
+	// int *****tet;
 	iii iiiii;
 	s_list	sdflkj;
-    scanf("%d", &n);
+    // scanf("%d", &n);
 	int (*p)(int, int);
 
     for (i = 0; i < n; i++)
@@ -60,15 +61,3 @@ int main()
     printf("%c\n", answer[0]);
     return (1);
 }
-
-/*
-function = 3 3 -> 4
-operator = 17 17
-int = 8 11 -> 유지 필요
-char = 2 2
-pointer = 1 2
-array = 2 2
-selection = 2 2
-loop = 2 2
-return = 1 1
-*/

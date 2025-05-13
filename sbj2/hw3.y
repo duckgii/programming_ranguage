@@ -17,6 +17,8 @@ int ary[9] = {0,0,0,0,0,0,0,0,0};
 int yylex(void);
 struct YYLTYPE;
 int idx; // int a, b; 이런 경우 해결을 위한 count 변수     
+int pointerFlag;
+int arrayFlag;
 void yyerror(const char *msg); 
 %}
 
@@ -55,10 +57,10 @@ external_declaration
 
 declaration_specifiers
 	: storage_class_specifier
-	| storage_class_specifier declaration_specifiers
+	| storage_class_specifier declaration_specifiers 
 	| type_specifier
 	| type_specifier declaration_specifiers
-	| type_qualifier
+	| type_qualifier 
 	| type_qualifier declaration_specifiers
 	;
 //선언과 정의가 섞여있는부분 에러 발생
@@ -195,18 +197,18 @@ assignment_operator
 	;
 
 type_specifier
-	: VOID
+	: VOID {idx = -1;}
 	| CHAR {idx = CHARACTER;}
-	| SHORT
+	| SHORT {idx = -1;}
+	| LONG {idx = -1;}
+	| DOUBLE {idx = -1;}
+	| SIGNED {idx = -1;}
 	| INT {idx = INTEGER;}
-	| LONG 
-	| FLOAT
-	| DOUBLE
-	| SIGNED
-	| UNSIGNED
-	| TYPE_NAME
-	| struct_or_union_specifier
-	| enum_specifier
+	| UNSIGNED {idx = -1;}
+	| FLOAT {idx = -1;}
+	| TYPE_NAME {idx = -1;}
+	| struct_or_union_specifier {idx = -1;}
+	| enum_specifier {idx = -1;}
 	;
 
 /* iteration count */
@@ -228,27 +230,39 @@ statement
 /* for counting pointer */
 
 declarator
-	: pointer direct_declarator {ary[POINTER]++;}
-	| direct_declarator
+	: pointer direct_declarator {
+		ary[POINTER]++;
+		if (arrayFlag)
+		{
+			ary[ARRAY]++;
+			arrayFlag = 0;
+			idx = -1;
+		}
+		}//변수, 포인터 개수 증가 필요 -> 근데 여기서하면 함수 선언도 증가되버림 포인터개수는 여기서 증가가 맞을듯
+	| direct_declarator {
+		if (arrayFlag)
+			ary[ARRAY]++;
+		arrayFlag = 0;
+	}//변수 개수 증가 필요 -> 근데 여기서하면 함수 선언도 증가되버림
 	;
 
 pointer
 	: '*'
 	| '*' type_qualifier_list
-	| '*' pointer
-	| '*' type_qualifier_list pointer
+	| '*' pointer {idx = -1;}// 자료형 증가 x
+	| '*' type_qualifier_list pointer {idx = -1;}// 자료형 증가 x
 	;
 
 /* for counting array*/
 
 direct_declarator
 	: IDENTIFIER
-	| '(' declarator ')' 
-	| direct_declarator '[' constant_expression ']' {ary[ARRAY]++;}
-	| direct_declarator '[' ']' {ary[ARRAY]++;}
-	| direct_declarator '(' parameter_type_list ')' {ary[FUNCTION]++;}
-	| direct_declarator '(' identifier_list ')' {ary[FUNCTION]++;}
-	| direct_declarator '(' ')' {ary[FUNCTION]++;}
+	| '(' declarator ')' //포인터함수 -> 자료형 증가 필요
+	| direct_declarator '[' constant_expression ']' {arrayFlag = 1;} // 배열 -> 자료형 증가 필요
+	| direct_declarator '[' ']' {arrayFlag = 1;} // 배열 -> 자료형 증가 필요 // 여기서 근데 포인터 배열이라면 자료형 증가 막아야함 ㅜㅜ
+	| direct_declarator '(' parameter_type_list ')' {ary[FUNCTION]++; idx = -1;} // 자료형 증가 X ex) float a(int, double);
+	| direct_declarator '(' identifier_list ')' {ary[FUNCTION]++; idx = -1;} // 지금은 잘 안 쓰는 조금 애매한 문법
+	| direct_declarator '(' ')' {ary[FUNCTION]++; idx = -1;} // 무시 가능 -> 함수 개수만 증가
 	;
 
 /* for counting selection */
@@ -270,13 +284,20 @@ jump_statement
 
 /* 추가 필요 문법 */
 declaration
-	: declaration_specifiers ';'
-	| declaration_specifiers init_declarator_list ';'
+	: declaration_specifiers ';' 
+	| declaration_specifiers init_declarator_list ';' //check 
 	;
 
-init_declarator_list
-	: init_declarator {ary[idx]++;};
-	| init_declarator_list ',' init_declarator {ary[idx]++;}
+init_declarator_list // 변수 타입 증가 필요 부분
+	: init_declarator {
+		if (idx != -1)
+			ary[idx]++;
+	}
+	| init_declarator_list ',' init_declarator   {
+		if (idx != -1)
+			ary[idx]++;
+		idx = -1;
+	} // 여기 부분 숫자 세는 거 오류 있음 -> 두 개 나와야 하는데 하나만 나옴
 	;
 
 init_declarator
@@ -350,8 +371,13 @@ parameter_list
 	;
 
 parameter_declaration
-	: declaration_specifiers declarator
-	| declaration_specifiers abstract_declarator
+	: declaration_specifiers declarator // 변수 개수 증가 필요
+	{
+		if (idx != -1)
+			ary[idx]++;
+		idx = - 1;
+	}
+	| declaration_specifiers abstract_declarator {idx = -1;}
 	| declaration_specifiers
 	;
 
@@ -406,8 +432,8 @@ struct_or_union_specifier
 	;
 
 struct_declaration_list
-	: struct_declaration
-	| struct_declaration_list struct_declaration
+	: struct_declaration 
+	| struct_declaration_list struct_declaration 
 	;
 
 struct_declaration
@@ -415,8 +441,15 @@ struct_declaration
 	;
 
 struct_declarator_list
-	: struct_declarator
-	| struct_declarator_list ',' struct_declarator
+	: struct_declarator{
+		if (idx != -1)
+			ary[idx]++;
+	}
+	| struct_declarator_list ',' struct_declarator{
+		if (idx != -1)
+			ary[idx]++;
+		idx = -1;
+	}
 	;
 
 struct_declarator
