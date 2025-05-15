@@ -2,7 +2,7 @@
 NAME      = yacc
 CC        = cc
 
-SRC_LEX   = lex.l
+SRC_LEX   = hw3.l
 SRC_YACC  = hw3.y
 
 # --- 생성 산출물 정의 ---

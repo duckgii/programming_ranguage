@@ -30,11 +30,11 @@ int main()
 	int arr[2][3];
     int sum = a;
 	int* arr[9]; // 이걸 어케 처리해야할까...
-	// struct k_list	kk;
-	// int *****tet;
+	struct k_list	kk;
+	int *****tet;
 	iii iiiii;
 	s_list	sdflkj;
-    // scanf("%d", &n);
+    scanf("%d", &n);
 	int (*p)(int, int);
 
     for (i = 0; i < n; i++)
@@ -43,7 +43,6 @@ int main()
     }
     for (i = 0; i < n; i++)
     {
-		
         sum += arr[i];
     }
     if (sum >= 10)
