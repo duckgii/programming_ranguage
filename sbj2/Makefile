@@ -1,5 +1,6 @@
 # --- 변수 선언 ---
 NAME      = yacc
+NAME2     = hw3.pdf
 CC        = cc
 
 SRC_LEX   = hw3.l
@@ -13,6 +14,8 @@ OBJS      = lex.yy.o y.tab.o
 # --- 기본 타겟 ---
 all: $(NAME)
 
+pdf : report.tex
+	pdflatex report.tex
 # --- 링크 단계: 오브젝트 → 실행파일 ---
 $(NAME): $(OBJS)
 	$(CC) -o $@ $(OBJS)

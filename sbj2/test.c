@@ -8,6 +8,17 @@ struct k_list {
 	int aa;
 };
 
+union Data {
+    int    i;
+    float  f;
+    char   str[20];
+};
+/*
+int aa;
+int bb;
+int cccc;
+*/
+
 typedef struct t_list {
 	int aa;
 } s_list;
@@ -33,6 +44,8 @@ int main()
 	struct k_list	kk;
 	int *****tet;
 	iii iiiii;
+	union Data d;
+    d.i = 10;  
 	s_list	sdflkj;
     scanf("%d", &n);
 	int (*p)(int, int);
