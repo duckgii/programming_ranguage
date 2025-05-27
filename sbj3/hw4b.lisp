@@ -26,19 +26,36 @@
 			)
 		)
 		(if (= flag 1) (setq tmplist (cdr tmplist))) ;; target이 이미 retlist에 들어있는경우 target을 tmplist에서 제외
-		(print "end one step")
 		(setq retlist (append retlist tmplist))
-		(print retlist)
 		(setq lst retlist)
+		;; 한 단계 끝나고 출력부분 -> 개행 없이 출력을 위해 princ활용
+		(princ "step ")
+		(princ i)
+		(princ " : ")
+		(princ retlist)
+		(terpri) ;;개행 출력
 	)
-	(print "finish")
-	(print lst)
+
+	(terpri)
+	(princ "finish : ")
+	(princ lst)
+	(terpri)
 )
-(print "insertsort")
-(print "tc1")
+(terpri)
+(princ "Insertsort")
+(terpri)(terpri)
+
+(princ "TC1 : ")
+(princ tc1)
+(terpri)(terpri)
+
 (insertsort tc1)
 (setq retlist '())
-;; (print "\n\n")
-(print "insertsort")
-(print "tc2")
+(terpri)(terpri)(terpri)
+
+(princ "TC2 : ")
+(princ tc2)
+(terpri)(terpri)
+
 (insertsort tc2)
+(terpri)(terpri)
