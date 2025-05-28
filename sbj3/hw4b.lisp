@@ -23,7 +23,7 @@
 				 	(setq retlist (append retlist (list target lstnum))) ;; 타겟보다 크면 타겟을 리스트에 추가한 후 뒤에 tmplist의 원소를 추가 -> 크기순 정렬됨
 				 	(setq flag 1))) ;; 이후 뒷 부분은 비교할 필요없이 retlist에 append하면 되니까 flag처리
 				(setq retlist (append retlist (list lstnum))) ;;flag가 1이면 이미 target은 retlist에 들어간 상태이므로 비교하지않고 바로 append(이전 정렬에서 정렬되었음을 보장)
-			)
+			);;여기서 c++와 같은 언어들은 pop을 실행하면 알아서 해당 자료구조의 크기도 변경되는데 lisp도 그럴거라고 생각하고 작성했는데 그게 아니라서 버그수정에 시간이 걸렸다.
 		)
 		(if (= flag 1) (setq tmplist (cdr tmplist))) ;; target이 이미 retlist에 들어있는경우 target을 tmplist에서 제외
 		(setq retlist (append retlist tmplist))
