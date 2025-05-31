@@ -3,18 +3,9 @@ abs(X, Ret):-
 	Ret is (X * -1).
 
 checkoneQueen(X, Y, Same):-
-	X == 0 ->
-		Same is 1;
-	Y == 0 ->
-		Same is 1;
-	X == Y ->
-		Same is 1;
-	(
-		abs(X, Ret),
-		Ret == Y 
-	) ->
-		Same is 1;
-		Same is (0).
+	(X == 0; Y == 0; X == Y; abs(X, Ret), Ret == Y) 
+	-> Same is 1;
+	Same is 0.
 
 checkallQueen(PreX_idx, [], NowX_idx, NowY_idx, Flag, Flag):-!. % 모든 리스트 다 검사했으면 0 반환
 checkallQueen(PreX_idx, [PreY_idx|Tail], NowX_idx, NowY_idx, 0, 0):-!. % 겹치면 0으로 flag 수정하고 바로 종료
@@ -55,7 +46,7 @@ insertQueen(N, List, Idx_x, Idx_y, Ret):-
 	(
 		Flag == 1 , Idx_x == N ->
 			push_back(List, Idx_y, Temp),
-			reverse(Temp, [], RTemp),
+			reverse(Temp, [], RTemp), %과제 출력에 맞게 reverse -> 과제는 나처럼 완성되면 복사하는 형식이 아니라 하나씩 차근차근 복사해서 넣어서 reverse형태인듯
 			insertQueen(0, RTemp, 0, 1, Ret);
 		Flag == 1 , Idx_y < N ->
 			push_back(List, Idx_y, Temp),
