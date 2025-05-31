@@ -8,7 +8,13 @@
 (defun NQueen(lst)
 	(if (= (length lst) 4) 
 		(progn
-			(print lst)
+			(loop for Q in lst
+				do
+				(progn 
+					(princ (+ Q 1)) ;;현재 0인덱스이기 때문에 과제 설명처럼 1인덱스로 변경해서 출력
+					(princ " "))
+			)
+			(terpri)
 			(return-from NQueen nil)
 		)
 	)
@@ -20,10 +26,10 @@
 		(setq append_i (length lst)) ;; 현재 추가할 queen의 i_idx
 		;; 이 append_i의 값이 전역변수라서 내부에서 함수를 호출하면 해당 호출 함수에서 append_i의 값을 바꿔 제대로된 값이 리턴되지 않았다.
 		;; 처음 출력 정답 내용
-		;; (1 3 0 2) 
-		;; (1 3 2 0) 
-		;; (2 0 3 1) 
-		;; (2 1 3 0) 
+		;; (2 4 1 3) 
+		;; (2 4 3 1) 
+		;; (3 1 4 2) 
+		;; (3 2 4 1) 
 		;; 처음 값은 이것처럼 대각선 값을 제대로 확인 X
 		;; 모두 지역변수로 선언할 수도 있지만 매번 초기화하는 방법을 선택했습니다.
 		;; append_j의 값은 함수 호출로인한 side effect로 바뀔 수 있지만, 어짜피 루프 돌면 새로운 다음 값으로 초기화돼서 로직에 영향을 끼치지 않습니다.

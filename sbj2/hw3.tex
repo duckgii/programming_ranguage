@@ -1,8 +1,5 @@
 \documentclass[11pt,oneside,a4paper]{article}
 \usepackage{kotex}
-\usepackage{graphicx}
-\usepackage{amssymb}
-\usepackage{cite}
 \usepackage{subcaption}
 
 \begin{document}
@@ -417,7 +414,6 @@ void yyerror(const char *msg); // 디버깅 용으로 사용하였습니다.
 %token CASE DEFAULT IF ELSEIF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
 %start translation_unit
 
-%locations
 %%
 /* function declaration */
 translation_unit
@@ -445,11 +441,17 @@ declaration_specifiers
 	| type_qualifier declaration_specifiers
 	;
 
-compound_statement // 여기 부분 추가 설명 필요
+
+/*
+	예전 c문법은 변수의 선언은 무조건 가장 앞에서만 가능했고 테스트코드처럼 선언문과 할당문이 섞일 수 없었습니다. 
+	따라서 declaration_list 후 statement_list가 나올 수 있었던 기존의 코드를 수정하여 두 심볼이 섞여서
+	나올 수 있는 compound_list를 새로 만들었습니다.
+*/
+compound_statement 
 	: '{' compound_list '}'
 	;
 
-compound_list // 이거 내가 만든 것 같은데
+compound_list 
 	: declaration
 	| statement
 	| compound_list declaration
@@ -614,7 +616,6 @@ statement
 	;
 
 /* for counting pointer */
-//여기 자세히 설명 필요
 declarator
 	: pointer direct_declarator {
 		ary[POINTER]++;
@@ -677,7 +678,6 @@ selection_statement
 	| SWITCH '(' expression ')' statement {ary[SELECTION]++;}
 	;
 
-/* for counting return */
 //RETURN 토큰이 나오면 return의 카운트를 증가하였습니다.
 jump_statement
 	: GOTO IDENTIFIER ';'
@@ -824,7 +824,6 @@ direct_abstract_declarator
 	| direct_abstract_declarator '(' parameter_type_list ')'
 	;
 
-// for typedef -> typedef 내가 추가한건가?
 storage_class_specifier
 	: TYPEDEF
 	| EXTERN
@@ -895,12 +894,7 @@ enumerator
 
 void yyerror(const char *msg)
 {
-    /* 전역 YYLTYPE yylloc 에 마지막 토큰 위치가 들어 있음 */
-    fprintf(stderr,
-            "Error at %d:%d: %s\n",
-            yylloc.first_line,
-            yylloc.first_column,
-            msg);
+    fprintf(stderr,"%s\n", msg);
 }
 
 int main(void)
@@ -917,8 +911,6 @@ int main(void)
 	printf("return = %d\n", ary[8]);
 	return 0;
 }
-
-
 
 \end{verbatim}
 \end{document}

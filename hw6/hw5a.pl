@@ -1,7 +1,9 @@
-sorting(A, X):- sortFunc(A, X).
+sorting(A, X):- sortList(A, [], X).
 % 재귀 호출의 출력 인자는 “아직 값이 없는 새로운 변수”여야 하고, 
-% 그 변수를 통해 돌아오는 값을 머리 패턴([...])과 통일하면서 결과가 채워지는 겁니다. 
-% 변수 이름은 자유지만, 각 호출마다 독립된 빈 변수를 써야 제대로 동작해요.
+% 그 변수를 통해 돌아오는 값을 머리 패턴([...])과 통일하면서 결과가 채워진다. 
+% 변수 이름은 자유지만, 각 호출마다 독립된 빈 변수를 써야 제대로 동작한다.
+% 이 부분이 헷갈려서 변수를 선언하지 않고 매개변수로 넘어간 값을 대입해서 반환한다는 부분이 이해가 어려웠다.
+% 프롤로그의 변수는 선언과 동시에 초기화되기 때문에 호출할 때 잘 고려해서 선언하는것이 중요
 
 % -> 기껏 만들었지만 짜고보니까 안 씀(insert와 거의 동일함)
 push_back(Elem, [], [Elem]) :- !.
@@ -23,30 +25,25 @@ insert([H1|T1], Num, [H2|T2]):-
 		insert([H1|T1], [], T2)
 	).
 
-listLength([], 0):- !.
-listLength([Head|Rest], Length):-
+listLength([], 0):- !. %사용하지 않는 변수는 _로 처리하여 warning를 없앴다. 완전익명변수 '_'는 컴파일러가 무시함
+listLength([_|Rest], Length):- % 리스트의 길이 확인 함수
 	listLength(Rest, LengthT),
 	Length is (LengthT + 1).
 
-printList([], Temp):- !.
-printList(R, Temp):-
+printList([], _):- !.
+printList(R, Temp):- % 출력을 위한 함수(길이가 2보다 클 때만 출력)
 	listLength(R, Len),
 	Len > 1 ->
 		write("X = "), write(R), write("."), nl;
 		printList([], Temp).
 
 
-sortList([], Sorted, Sorted):-!.
+sortList([], Sorted, Sorted):-!. % 정렬이 완료되면 반환에 정렬된 리스트를 넣음
 sortList([H|T], Sorted, Return):-
-	insert(Sorted, H, R),
-	printList(R, Temp),
-	sortList(T, R, Return).
-	
+	insert(Sorted, H, R), % 정렬된 리스트에 새 값을 집어넣고
+	printList(R, _), % 정렬된 리스트 출력하고
+	sortList(T, R, Return). % 다음값 집어넣기
 
-sortFunc([], Return):-!.
-sortFunc(List, Return):-
-	sortList(List, [], Return),
-	sortFunc([], Return).
-
-
-
+%처음에 X = []이게 왜 출력되는지 몰라서 시간이 좀 걸렸다.
+%알고보니 swipl 여기서 알아서 반환형인 X를 출력해줬다.
+% 그래서 처음에는 X에 아무것도 반환되지 않았는데 다시 바꾸느라 시간이 좀 걸렸다.

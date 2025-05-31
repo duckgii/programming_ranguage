@@ -14,8 +14,8 @@ OBJS      = lex.yy.o y.tab.o
 # --- 기본 타겟 ---
 all: $(NAME)
 
-pdf : report.tex
-	pdflatex report.tex
+pdf : hw3.tex
+	pdflatex hw3.tex
 # --- 링크 단계: 오브젝트 → 실행파일 ---
 $(NAME): $(OBJS)
 	$(CC) -o $@ $(OBJS)
