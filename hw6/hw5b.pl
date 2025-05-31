@@ -36,12 +36,18 @@ push_back([], Num, [Num]):-!.
 push_back([Head|Tail], Num, [Head|Tail2]):-
 	push_back(Tail, Num, Tail2).
 
-insertQueen(0, List, 0, 1, List):-!.
 	% write(List), nl.
 
 % insertQueen(N, List, Idx_x, Idx_y, Ret):-
 
+% reverse([], []):-!.
+% reverse([H1|T1], Rtemp):-
+% 	reverse(T1, [H1|Rtemp]).
+reverse([], Rev, Rev):-!.
+reverse([H1|T1], Rev, Rtemp):-
+	reverse(T1, [H1|Rev], Rtemp).
 
+insertQueen(0, List, 0, 1, List):-!.
 insertQueen(N, List, Idx_x, Idx_y, Ret):-
 	Next_Xidx is (Idx_x + 1),
 	Next_Yidx is (Idx_y + 1),
@@ -49,7 +55,8 @@ insertQueen(N, List, Idx_x, Idx_y, Ret):-
 	(
 		Flag == 1 , Idx_x == N ->
 			push_back(List, Idx_y, Temp),
-			insertQueen(0, Temp, 0, 1, Ret);
+			reverse(Temp, [], RTemp),
+			insertQueen(0, RTemp, 0, 1, Ret);
 		Flag == 1 , Idx_y < N ->
 			push_back(List, Idx_y, Temp),
 			(insertQueen(N, Temp, Next_Xidx, 1, Ret);
